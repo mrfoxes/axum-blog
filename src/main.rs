@@ -14,6 +14,7 @@ use std::{
     sync::Arc,
 };
 use chrono::{DateTime, Local, TimeZone};
+use sysinfo::{System, SystemExt, CpuExt};
 
 // Define metadata structure for blog posts
 #[derive(Serialize, Default, Debug)]
@@ -147,6 +148,21 @@ async fn single_post(
 
 #[tokio::main]
 async fn main() {
+    let mut sys = System::new_all();
+    sys.refresh_all();
+
+    println!("System name: {:?}", sys.name());
+    println!("Kernel version: {:?}", sys.kernel_version());
+    println!("OS version: {:?}", sys.os_version());
+    println!("Hostname: {:?}", sys.host_name());
+
+    println!("Total memory: {} KB", sys.total_memory());
+    println!("Used memory : {} KB", sys.used_memory());
+
+    for (i, cpu) in sys.cpus().iter().enumerate() {
+        println!("CPU {}: {}% usage", i, cpu.cpu_usage());
+    }
+    
     let mut hb = Handlebars::new();
     if let Err(e) = hb.register_template_file("index.html", "templates/index.html") {
         eprintln!("Failed to register index template: {}", e);
