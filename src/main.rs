@@ -14,7 +14,9 @@ use std::{
     sync::Arc,
 };
 use chrono::{DateTime, Local, TimeZone};
-use sysinfo::{System, SystemExt, CpuExt};
+use sysinfo::{
+    System,
+};
 
 // Define metadata structure for blog posts
 #[derive(Serialize, Default, Debug)]
@@ -148,20 +150,28 @@ async fn single_post(
 
 #[tokio::main]
 async fn main() {
+    // Please note that we use "new_all" to ensure that all lists of
+    // CPUs and processes are filled!
     let mut sys = System::new_all();
+    
+    // First we update all information of our `System` struct.
     sys.refresh_all();
-
-    println!("System name: {:?}", sys.name());
-    println!("Kernel version: {:?}", sys.kernel_version());
-    println!("OS version: {:?}", sys.os_version());
-    println!("Hostname: {:?}", sys.host_name());
-
-    println!("Total memory: {} KB", sys.total_memory());
-    println!("Used memory : {} KB", sys.used_memory());
-
-    for (i, cpu) in sys.cpus().iter().enumerate() {
-        println!("CPU {}: {}% usage", i, cpu.cpu_usage());
-    }
+    
+    println!("=> system:");
+    // RAM and swap information:
+    println!("total memory: {} bytes", sys.total_memory());
+    println!("used memory : {} bytes", sys.used_memory());
+    println!("total swap  : {} bytes", sys.total_swap());
+    println!("used swap   : {} bytes", sys.used_swap());
+    
+    // Display system information:
+    println!("System name:             {:?}", System::name());
+    println!("System kernel version:   {:?}", System::kernel_version());
+    println!("System OS version:       {:?}", System::os_version());
+    println!("System host name:        {:?}", System::host_name());
+    
+    // Number of CPUs:
+    println!("NB CPUs: {}", sys.cpus().len());
     
     let mut hb = Handlebars::new();
     if let Err(e) = hb.register_template_file("index.html", "templates/index.html") {
